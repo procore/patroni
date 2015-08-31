@@ -1,4 +1,4 @@
-site_name: Patroni: PostgreSQL HA Template using distributed concensus
+site_name: "Patroni: PostgreSQL HA Template using distributed concensus"
 repo_url: https://github.com/zalando/patroni/
 theme: readthedocs
 
