@@ -4,3 +4,4 @@ theme: readthedocs
 
 pages:
   - Introduction: index.md
+  - Docker: docker/README.md
