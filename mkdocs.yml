@@ -3,5 +3,5 @@ repo_url: https://github.com/zalando/patroni/
 theme: readthedocs
 
 pages:
-  - Introduction: index.md
+  - Introduction: documentation/index.md
   - Docker: docker/README.md
