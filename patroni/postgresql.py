@@ -4,6 +4,7 @@ import psycopg2
 import shlex
 import shutil
 import subprocess
+import threading
 import time
 
 from patroni.exceptions import PostgresException
@@ -66,6 +67,7 @@ class Postgresql:
 
         self._connection = None
         self._cursor_holder = None
+        self._synced_from_leader = False
         self.members = []  # list of already existing replication slots
 
     def get_local_address(self):
@@ -127,6 +129,7 @@ class Postgresql:
         os.path.exists(self.trigger_file) and os.unlink(self.trigger_file)
 
     def sync_from_leader(self, leader):
+        self._synced_from_leader = False
         r = parseurl(leader.conn_url)
 
         pgpass = 'pgpass'
@@ -136,7 +139,7 @@ class Postgresql:
 
         env = os.environ.copy()
         env['PGPASSFILE'] = pgpass
-        return self.create_replica(r, env) == 0
+        self._synced_from_leader = (self.create_replica(r, env) == 0)
 
     @staticmethod
     def build_connstring(conn):
@@ -394,7 +397,7 @@ recovery_target_timeline = 'latest'
     def last_operation(self):
         return str(self.xlog_position())
 
-    def bootstrap(self, current_leader=None):
+    def bootstrap(self, current_leader=None, dcs_callback=None, nap_time=5.0):
         """
             Initially bootstrap PostgreSQL, either by creating a data
             directory with initdb, or by initalizing a replica from an
@@ -413,7 +416,18 @@ recovery_target_timeline = 'latest'
             else:
                 raise PostgresException("Could not bootstrap master PostgreSQL")
         else:
-            if self.sync_from_leader(current_leader):
+            # run initial sync in a separate thread in order to avoid blocking
+            # interaction with the DCS while the sync is running.
+            th = threading.Thread(target=self.sync_from_leader, args=(current_leader,))
+            th.start()
+            while th.isAlive():
+                th.join(nap_time)
+                if dcs_callback:
+                    dcs_callback()
+            # this flag is set only in postgresql.sync_from_leader() and read
+            # only here. If you change this, use some synchronization mechanism
+            # to avoid race conditions.
+            if self._synced_from_leader:
                 self.write_recovery_conf(current_leader)
                 ret = self.start()
         return ret

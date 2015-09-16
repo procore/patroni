@@ -150,7 +150,8 @@ class TestPostgresql(unittest.TestCase):
         self.assertTrue(self.p.stop())
 
     def test_sync_from_leader(self):
-        self.assertTrue(self.p.sync_from_leader(self.leader))
+        self.p.sync_from_leader(self.leader)
+        self.assertTrue(self.p._synced_from_leader)
 
     def test_follow_the_leader(self):
         self.p.demote(self.leader)

@@ -51,6 +51,14 @@ class Patroni:
         self.postgresql.stop()
         self.postgresql.move_data_directory()
 
+    def bootstrap_callback(self):
+        self.touch_member()
+
+    def bootstrap(self, leader=None):
+        return self.postgresql.bootstrap(current_leader=leader,
+                                         dcs_callback=self.bootstrap_callback,
+                                         nap_time=self.nap_time)
+
     def initialize(self):
         # wait for etcd to be available
         while not self.touch_member():
@@ -65,12 +73,12 @@ class Patroni:
                     if not cluster.is_unlocked():  # the leader already exists
                         if not cluster.initialize:
                             self.ha.dcs.initialize()
-                        self.postgresql.bootstrap(cluster.leader)
-                        break
+                        if self.bootstrap(cluster.leader):
+                            break
                     # racing to initialize
                     elif not cluster.initialize and self.ha.dcs.initialize():
                         try:
-                            self.postgresql.bootstrap()
+                            self.bootstrap()
                         except:
                             # bail out and clean the initialize flag.
                             self.cleanup_on_failed_initialization()
