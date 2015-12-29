@@ -140,7 +140,7 @@ class Client(etcd.Client):
 def catch_etcd_errors(func):
     def wrapper(*args, **kwargs):
         try:
-            return not func(*args, **kwargs) is None
+            return func(*args, **kwargs) is not None
         except (RetryFailedError, etcd.EtcdException):
             return False
         except:
