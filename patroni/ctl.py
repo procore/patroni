@@ -107,10 +107,11 @@ def get_dcs(config, scope):
     raise PatroniCtlException('Can not find suitable configuration of distributed configuration store')
 
 
-def post_patroni(member, endpoint, content, headers={'Content-Type': 'application/json'}):
+def post_patroni(member, endpoint, content, headers=None):
     url = urlparse(member.api_url)
     logging.debug(url)
-    return requests.post('{0}://{1}/{2}'.format(url.scheme, url.netloc, endpoint), headers=headers,
+    return requests.post('{0}://{1}/{2}'.format(url.scheme, url.netloc, endpoint),
+                         headers=headers or {'Content-Type': 'application/json'},
                          data=json.dumps(content), timeout=60)
 
 
@@ -378,7 +379,7 @@ def empty_post_to_members(cluster, member_names, force, endpoint):
     for m in cluster.members:
         candidates[m.name] = m
 
-    if len(member_names) == 0:
+    if not member_names:
         member_names = [click.prompt('Which member do you want to {0} [{1}]?'.format(endpoint,
                         ', '.join(candidates.keys())), type=str, default='')]
 
@@ -421,7 +422,7 @@ def restart(cluster_name, member_names, config_file, dcs, force, role, any):
 
     role_names = [m.name for m in get_all_members(cluster=cluster, role=role)]
 
-    if len(member_names) > 0:
+    if member_names:
         member_names = list(set(member_names) & set(role_names))
     else:
         member_names = role_names
@@ -478,7 +479,7 @@ def failover(config_file, cluster_name, master, candidate, force, dcs):
     # We sort the names for consistent output to the client
     candidate_names.sort()
 
-    if len(candidate_names) == 0:
+    if not candidate_names:
         raise PatroniCtlException('No candidates found to failover to')
 
     if candidate is None and not force:
@@ -589,7 +590,7 @@ def output_members(cluster, name=None, format='pretty'):
 @option_watchrefresh
 @option_dcs
 def members(config_file, cluster_names, format, watch, w, dcs):
-    if len(cluster_names) == 0:
+    if not cluster_names:
         logging.warning('Listing members: No cluster names were provided')
         return
 
