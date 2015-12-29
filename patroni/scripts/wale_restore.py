@@ -104,7 +104,7 @@ class WALERestore(object):
         lsn_offset = hex((long(backup_start_segment[16:32], 16) << 24) + long(backup_start_offset))[2:-1]
 
         # construct the LSN from the segment and offset
-        backup_start_lsn = '{}/{}'.format(lsn_segment, lsn_offset)
+        backup_start_lsn = '{0}/{1}'.format(lsn_segment, lsn_offset)
 
         conn = None
         cursor = None
