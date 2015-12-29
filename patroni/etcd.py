@@ -185,25 +185,25 @@ class Etcd(AbstractDCS):
             nodes = {os.path.relpath(node.key, result.key): node for node in result.leaves}
 
             # get initialize flag
-            initialize = nodes.get(self._INITIALIZE, None)
+            initialize = nodes.get(self._INITIALIZE)
             initialize = initialize and initialize.value
 
             # get last leader operation
-            last_leader_operation = nodes.get(self._LEADER_OPTIME, None)
+            last_leader_operation = nodes.get(self._LEADER_OPTIME)
             last_leader_operation = 0 if last_leader_operation is None else int(last_leader_operation.value)
 
             # get list of members
             members = [self.member(n) for k, n in nodes.items() if k.startswith(self._MEMBERS) and k.count('/') == 1]
 
             # get leader
-            leader = nodes.get(self._LEADER, None)
+            leader = nodes.get(self._LEADER)
             if leader:
                 member = Member(-1, leader.value, None, {})
                 member = ([m for m in members if m.name == leader.value] or [member])[0]
                 leader = Leader(leader.modifiedIndex, leader.ttl, member)
 
             # failover key
-            failover = nodes.get(self._FAILOVER, None)
+            failover = nodes.get(self._FAILOVER)
             if failover:
                 failover = Failover.from_node(failover.modifiedIndex, failover.value)
 

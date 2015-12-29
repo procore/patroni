@@ -57,11 +57,11 @@ class Member(namedtuple('Member', 'index,name,session,data')):
 
     @property
     def conn_url(self):
-        return self.data.get('conn_url', None)
+        return self.data.get('conn_url')
 
     @property
     def api_url(self):
-        return self.data.get('api_url', None)
+        return self.data.get('api_url')
 
     @property
     def nofailover(self):

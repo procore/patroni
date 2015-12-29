@@ -52,7 +52,7 @@ class Postgresql:
         self.superuser = config['superuser']
         self.admin = config['admin']
         self.initdb_options = config.get('initdb', [])
-        self.pgpass = config.get('pgpass', None) or os.path.join(os.path.expanduser('~'), 'pgpass')
+        self.pgpass = config.get('pgpass') or os.path.join(os.path.expanduser('~'), 'pgpass')
         self.pg_rewind = config.get('pg_rewind', {})
         self.callback = config.get('callbacks', {})
         self.use_slots = config.get('use_slots', True)
@@ -61,13 +61,13 @@ class Postgresql:
         self.configuration_to_save = (os.path.join(self.data_dir, 'pg_hba.conf'),
                                       os.path.join(self.data_dir, 'postgresql.conf'))
         self.postmaster_pid = os.path.join(self.data_dir, 'postmaster.pid')
-        self.trigger_file = config.get('recovery_conf', {}).get('trigger_file', None) or 'promote'
+        self.trigger_file = config.get('recovery_conf', {}).get('trigger_file') or 'promote'
         self.trigger_file = os.path.abspath(os.path.join(self.data_dir, self.trigger_file))
 
         self._pg_ctl = ['pg_ctl', '-w', '-D', self.data_dir]
 
         self.local_address = self.get_local_address()
-        connect_address = config.get('connect_address', None) or self.local_address
+        connect_address = config.get('connect_address') or self.local_address
         self.connection_string = 'postgres://{username}:{password}@{connect_address}/postgres'.format(
             connect_address=connect_address, **self.replication)
 
