@@ -126,7 +126,7 @@ class AbstractDCS:
             i.e.: `zookeeper` for zookeeper, `etcd` for etcd, etc...
         """
         self._name = name
-        self._namespace = '/{}'.format(config.get('namespace', '/service/').strip('/'))
+        self._namespace = '/{0}'.format(config.get('namespace', '/service/').strip('/'))
         self._base_path = '/'.join([self._namespace, config['scope']])
 
         self._cluster = None

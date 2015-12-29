@@ -273,7 +273,7 @@ class RestApiServer(ThreadingMixIn, HTTPServer, Thread):
             self.socket = ssl.wrap_socket(self.socket, server_side=True, **options)
             protocol = 'https'
 
-        self.connection_string = '{}://{}/patroni'.format(protocol, config.get('connect_address', config['listen']))
+        self.connection_string = '{0}://{1}/patroni'.format(protocol, config.get('connect_address', config['listen']))
 
         self.patroni = patroni
         self.daemon = True

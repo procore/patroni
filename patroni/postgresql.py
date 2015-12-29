@@ -130,7 +130,7 @@ class Postgresql:
 
     def connection(self):
         if not self._connection or self._connection.closed != 0:
-            r = parseurl('postgres://{}/postgres'.format(self.local_address))
+            r = parseurl('postgres://{0}/postgres'.format(self.local_address))
             self._connection = psycopg2.connect(**r)
             self._connection.autocommit = True
         return self._connection
@@ -171,21 +171,21 @@ class Postgresql:
     @staticmethod
     def initdb_allowed_option(name):
         if name in ['pgdata', 'nosync', 'pwfile', 'sync-only']:
-            raise Exception('{} option for initdb is not allowed'.format(name))
+            raise Exception('{0} option for initdb is not allowed'.format(name))
         return True
 
     def get_initdb_options(self):
         options = []
         for o in self.initdb_options:
             if isinstance(o, string_types) and self.initdb_allowed_option(o):
-                options.append('--{}'.format(o))
+                options.append('--{0}'.format(o))
             elif isinstance(o, dict):
                 keys = list(o.keys())
                 if len(keys) != 1 or not isinstance(keys[0], string_types) or not self.initdb_allowed_option(keys[0]):
-                    raise Exception('Invalid option: {}'.format(o))
-                options.append('--{}={}'.format(keys[0], o[keys[0]]))
+                    raise Exception('Invalid option: {0}'.format(o))
+                options.append('--{0}={1}'.format(keys[0], o[keys[0]]))
             else:
-                raise Exception('Unknown type of initdb option: {}'.format(o))
+                raise Exception('Unknown type of initdb option: {0}'.format(o))
         return options
 
     def initialize(self):
@@ -196,7 +196,7 @@ class Postgresql:
             (fd, pwfile) = tempfile.mkstemp()
             os.write(fd, self.superuser['password'].encode())
             os.close(fd)
-            options.append('--pwfile={}'.format(pwfile))
+            options.append('--pwfile={0}'.format(pwfile))
 
         ret = subprocess.call(self._pg_ctl + ['initdb'] + (['-o', ' '.join(options)] if options else [])) == 0
         if pwfile:
@@ -233,7 +233,7 @@ class Postgresql:
         >>> Postgresql.build_connstring({'host': '127.0.0.1', 'port': '5432'}) == 'host=127.0.0.1 port=5432'
         True
         """
-        return ' '.join('{}={}'.format(param, val) for param, val in sorted(conn.items()))
+        return ' '.join('{0}={1}'.format(param, val) for param, val in sorted(conn.items()))
 
     def create_replica(self, leader, env):
         # create the replica according to the replica_method
@@ -344,7 +344,7 @@ class Postgresql:
 
     def checkpoint(self, connstring=None):
         try:
-            connstring = connstring or 'postgres://{}/postgres'.format(self.local_address)
+            connstring = connstring or 'postgres://{0}/postgres'.format(self.local_address)
             with psycopg2.connect(connstring) as conn:
                 conn.autocommit = True
                 with conn.cursor() as cur:
@@ -391,13 +391,13 @@ class Postgresql:
         if ret:
             self.call_nowait(ACTION_ON_RESTART)
         else:
-            self.set_state('restart failed ({})'.format(self.state))
+            self.set_state('restart failed ({0})'.format(self.state))
         return ret
 
     def server_options(self):
-        options = "--listen_addresses='{}' --port={}".format(self.listen_addresses, self.port)
+        options = "--listen_addresses='{0}' --port={1}".format(self.listen_addresses, self.port)
         for setting, value in self.server_parameters.items():
-            options += " --{}='{}'".format(setting, value)
+            options += " --{0}='{1}'".format(setting, value)
         return options
 
     def is_healthy(self):
@@ -441,11 +441,11 @@ class Postgresql:
 recovery_target_timeline = 'latest'
 """)
             if leader and leader.conn_url:
-                f.write("""primary_conninfo = '{}'\n""".format(self.primary_conninfo(leader.conn_url)))
+                f.write("""primary_conninfo = '{0}'\n""".format(self.primary_conninfo(leader.conn_url)))
                 if self.use_slots:
-                    f.write("""primary_slot_name = '{}'\n""".format(self.name))
+                    f.write("""primary_slot_name = '{0}'\n""".format(self.name))
                 for name, value in self.config.get('recovery_conf', {}).items():
-                    f.write("{} = '{}'\n".format(name, value))
+                    f.write("{0} = '{1}'\n".format(name, value))
 
     def rewind(self, leader):
         # prepare pg_rewind connection
@@ -457,7 +457,7 @@ recovery_target_timeline = 'latest'
         # first run a checkpoint on a promoted master in order
         # to make it store the new timeline (5540277D.8020309@iki.fi)
         self.checkpoint(pc)
-        logger.info("running pg_rewind from {}".format(pc))
+        logger.info("running pg_rewind from {0}".format(pc))
         pg_rewind = ['pg_rewind', '-D', self.data_dir, '--source-server', pc]
         try:
             ret = (subprocess.call(pg_rewind, env=env) == 0)
@@ -506,7 +506,7 @@ recovery_target_timeline = 'latest'
         cmd.append('postgres')
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)
         if p:
-            command and p.communicate('{}\n'.format(command))
+            command and p.communicate('{0}\n'.format(command))
             p.stdin.close()
             return p.wait()
         return 1
@@ -522,7 +522,7 @@ recovery_target_timeline = 'latest'
                     elif os.path.isfile(path):
                         os.remove(path)
                 except:
-                    logger.exception("Unable to remove {}".format(path))
+                    logger.exception("Unable to remove {0}".format(path))
 
     def follow_the_leader(self, leader, recovery=False):
         if not self.check_recovery_conf(leader) or recovery:

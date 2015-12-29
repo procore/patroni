@@ -54,7 +54,7 @@ class ExhibitorEnsembleProvider:
     def _query_exhibitors(self, exhibitors):
         random.shuffle(exhibitors)
         for host in exhibitors:
-            uri = 'http://{}:{}{}'.format(host, self._exhibitor_port, self._uri_path)
+            uri = 'http://{0}:{1}{2}'.format(host, self._exhibitor_port, self._uri_path)
             try:
                 response = requests.get(uri, timeout=self.TIMEOUT)
                 return response.json()

@@ -73,7 +73,7 @@ class Client(etcd.Client):
         except urllib3.exceptions.TimeoutError:
             raise
         except Exception as e:
-            raise etcd.EtcdException('Unable to decode server response: %s' % e)
+            raise etcd.EtcdException('Unable to decode server response: {0}'.format(e))
         return super(Client, self)._result_from_response(response)
 
     def _get_machines_cache_from_srv(self, discovery_srv):
@@ -83,7 +83,7 @@ class Client(etcd.Client):
 
         ret = []
         for host, port in self.get_srv_record(discovery_srv):
-            url = '{}://{}:{}/members'.format(self._protocol, host, port)
+            url = '{0}://{1}:{2}/members'.format(self._protocol, host, port)
             try:
                 response = requests.get(url, timeout=5)
                 if response.ok:
@@ -101,10 +101,10 @@ class Client(etcd.Client):
         host, port = addr.split(':')
         try:
             for r in set(socket.getaddrinfo(host, port, socket.AF_INET, socket.SOCK_STREAM, socket.IPPROTO_TCP)):
-                ret.append('{}://{}:{}'.format(self._protocol, r[4][0], r[4][1]))
+                ret.append('{0}://{1}:{2}'.format(self._protocol, r[4][0], r[4][1]))
         except socket.error:
             logger.exception('Can not resolve %s', host)
-        return list(set(ret)) if ret else ['{}://{}:{}'.format(self._protocol, host, port)]
+        return list(set(ret)) if ret else ['{0}://{1}:{2}'.format(self._protocol, host, port)]
 
     def _load_machines_cache(self):
         """This method should fill up `_machines_cache` from scratch.
