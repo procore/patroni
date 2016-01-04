@@ -115,7 +115,7 @@ def post_patroni(member, endpoint, content, headers=None):
                          data=json.dumps(content), timeout=60)
 
 
-def print_output(columns, rows, alignment=None, format='pretty', header=True, delimiter='\t'):
+def print_output(columns, rows=None, alignment=None, format='pretty', header=True, delimiter='\t'):
     rows = rows or []
     if format == 'pretty':
         t = PrettyTable(columns)
