@@ -497,11 +497,11 @@ recovery_target_timeline = 'latest'
         finally:
             return result
 
-    def single_user_mode(self, command=None, options={}):
+    def single_user_mode(self, command=None, options=None):
         """ run a given command in a single-user mode. If the command is empty - then just start and stop """
         cmd = ['postgres', '--single', '-D', self.data_dir]
-        for opt in sorted(options):
-            cmd.extend(['-c', '{0}={1}'.format(opt, options[opt])])
+        for opt, val in sorted((options or {}).items()):
+            cmd.extend(['-c', '{0}={1}'.format(opt, val)])
         # need a database name to connect
         cmd.append('postgres')
         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=open(os.devnull, 'w'), stderr=subprocess.STDOUT)

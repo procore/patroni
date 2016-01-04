@@ -115,7 +115,8 @@ def post_patroni(member, endpoint, content, headers=None):
                          data=json.dumps(content), timeout=60)
 
 
-def print_output(columns, rows=[], alignment=None, format='pretty', header=True, delimiter='\t'):
+def print_output(columns, rows, alignment=None, format='pretty', header=True, delimiter='\t'):
+    rows = rows or []
     if format == 'pretty':
         t = PrettyTable(columns)
         for k, v in (alignment or {}).items():
@@ -136,7 +137,7 @@ def print_output(columns, rows=[], alignment=None, format='pretty', header=True,
         if columns is not None and header:
             click.echo(delimiter.join(columns) + '\n')
 
-        for r in rows or []:
+        for r in rows:
             c = [str(c) for c in r]
             click.echo(delimiter.join(c))
 
@@ -169,8 +170,8 @@ def watching(w, watch, max_count=None, clear=True):
         yield 0
 
 
-def build_connect_parameters(conn_url, connect_parameters={}):
-    params = connect_parameters.copy()
+def build_connect_parameters(conn_url, connect_parameters=None):
+    params = connect_parameters or {}
     parsed = parseurl(conn_url)
     params['host'] = parsed['host']
     params['port'] = parsed['port']
@@ -201,12 +202,12 @@ def get_any_member(cluster, role='master', member=None):
     return None
 
 
-def get_cursor(cluster, role='master', member=None, connect_parameters={}):
+def get_cursor(cluster, role='master', member=None, connect_parameters=None):
     member = get_any_member(cluster=cluster, role=role, member=member)
     if member is None:
         return None
 
-    params = build_connect_parameters(member.conn_url, connect_parameters=connect_parameters)
+    params = build_connect_parameters(member.conn_url, connect_parameters=connect_parameters or {})
 
     conn = psycopg2.connect(**params)
     conn.autocommit = True
