@@ -377,7 +377,8 @@ class Ha:
         else:
             return self._async_executor.scheduled_action + ' in progress'
 
-    def sysid_valid(self, sysid):
+    @staticmethod
+    def sysid_valid(sysid):
         # sysid does tv_sec << 32, where tv_sec is the number of seconds sine 1970,
         # so even 1 << 32 would have 10 digits.
         return str(sysid) and len(str(sysid)) >= 10 and str(sysid).isdigit()

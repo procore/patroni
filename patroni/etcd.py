@@ -165,7 +165,8 @@ class Etcd(AbstractDCS):
     def retry(self, *args, **kwargs):
         return self._retry.copy()(*args, **kwargs)
 
-    def get_etcd_client(self, config):
+    @staticmethod
+    def get_etcd_client(config):
         client = None
         while not client:
             try:
