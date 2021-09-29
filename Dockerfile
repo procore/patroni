@@ -1,6 +1,6 @@
 ## This Dockerfile is meant to aid in the building and debugging patroni whilst developing on your local machine
 ## It has all the necessary components to play/debug with a single node appliance, running etcd
-FROM ubuntu:14.04
+FROM ubuntu:trusty-20190425
 MAINTAINER Feike Steenbergen <feike.steenbergen@zalando.de>
 
 # We need curl
